@@ -18,3 +18,8 @@ coverage.out
 *.key
 .env
 .env.*
+
+# Local development instructions
+/AGENTS.md
+/Git提交规范.md
+/GO编码规范.md
