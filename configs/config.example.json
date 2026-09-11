@@ -1,0 +1,13 @@
+{
+  "logging": {
+    "directory": "logs",
+    "retention_days": 30
+  },
+  "known_hosts": "/absolute/local/path/known_hosts",
+  "credentials": {
+    "dev-key": "/absolute/local/path/id_ed25519"
+  },
+  "credential_passphrase_env": {
+    "dev-key": "REMOTE_SHELL_DEV_KEY_PASSPHRASE"
+  }
+}
