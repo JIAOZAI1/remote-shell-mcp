@@ -127,6 +127,32 @@ SSH 断开和本地进程退出不主动销毁 tmux 会话，重连后可列举�
 
 提供任意命令执行意味着 Agent 获得该远端账号权限。应使用专用低权限账号，并通过操作系统/容器控制权限。上传下载可访问 MCP Server 进程权限允许的本地路径，请使用低权限本地账号或系统隔离保护私钥等敏感文件。添加服务器允许访问指定网络地址，部署方应通过网络策略限制可访问目标。
 
+## 自动构建与发布
+
+GitHub Actions 工作流位于 `.github/workflows/`：
+
+- `ci.yml`：推送 `main` 或创建/更新 PR 时，在 Linux、macOS、Windows 上检查格式、验证依赖、构建、测试及运行 `go vet`；Linux 额外执行竞态检测。
+- `release.yml`：推送严格的 `vMAJOR.MINOR.PATCH` 标签（如 `v0.1.0`）触发，先复用完整 CI，再交叉编译并创建 GitHub Release。Go 版本取自 `go.mod`，需为 `actions/setup-go` 可下载的版本。
+
+发布步骤（先确保代码已提交并推送）：
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+发布附件为独立二进制文件，不需要安装 Go：
+
+| 系统 | amd64 | arm64 |
+|---|---|---|
+| Linux | `remote-shell-mcp-linux-amd64` | `remote-shell-mcp-linux-arm64` |
+| macOS | `remote-shell-mcp-darwin-amd64` | `remote-shell-mcp-darwin-arm64` |
+| Windows | `remote-shell-mcp-windows-amd64.exe` | `remote-shell-mcp-windows-arm64.exe` |
+
+同时附带 `LICENSE` 和 `SHA256SUMS`。Linux 可用 `sha256sum --ignore-missing -c SHA256SUMS` 验证下载文件；macOS 可用 `shasum -a 256 <文件>`，Windows 可用 `Get-FileHash <文件> -Algorithm SHA256`，与校验文件对比。Linux/macOS 下载后需 `chmod +x <文件>`；仍需按前文准备连接配置。二进制未做代码签名或 macOS 公证。
+
+构建使用 `CGO_ENABLED=0`；六种目标均交叉编译，但 CI 并未对每种架构都做实机运行验证。发布先创建草稿，附件上传成功后才公开；失败可重新运行工作流以恢复草稿发布。已公开版本不覆盖，请使用新版本标签；不要移动已经发布的标签。只有发布任务拥有仓库写权限，使用内置 `GITHUB_TOKEN`，不需另配令牌。
+
 ## 开源协议
 
 本项目采用 [MIT License](LICENSE)，允许任何人使用、修改、分发及商用，须保留版权及许可声明。软件不提供任何担保。第三方依赖遵循各自的许可证。
