@@ -132,7 +132,7 @@ SSH 断开和本地进程退出不主动销毁 tmux 会话，重连后可列举�
 GitHub Actions 工作流位于 `.github/workflows/`：
 
 - `ci.yml`：推送 `main` 或创建/更新 PR 时，在 Linux、macOS、Windows 上检查格式、验证依赖、构建、测试及运行 `go vet`；Linux 额外执行竞态检测。
-- `release.yml`：推送严格的 `vMAJOR.MINOR.PATCH` 标签（如 `v0.1.0`）触发，先复用完整 CI，再交叉编译并创建 GitHub Release。Go 版本取自 `go.mod`，需为 `actions/setup-go` 可下载的版本。
+- `release.yml`：推送严格的 `vMAJOR.MINOR.PATCH` 标签（如 `v0.1.0`）触发，先复用完整 CI，再交叉编译并创建 GitHub Release。也可通过 Actions 页面的 Run workflow 手动运行：只测试和构建六种二进制，产物保存为 Actions artifacts（保留 7 天），不创建或修改 Release。Go 版本取自 `go.mod`，需为 `actions/setup-go` 可下载的版本。
 
 发布步骤（先确保代码已提交并推送）：
 

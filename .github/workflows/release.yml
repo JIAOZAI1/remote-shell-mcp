@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,6 +18,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Validate release tag
+        if: github.event_name == 'push'
         env:
           TAG: ${{ github.ref_name }}
         shell: bash
@@ -66,6 +68,7 @@ jobs:
           retention-days: 7
 
   publish:
+    if: github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
