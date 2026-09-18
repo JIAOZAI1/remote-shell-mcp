@@ -56,12 +56,17 @@ func (a *App) connect(ctx context.Context, s Server) (*ssh.Client, func(), error
 		release()
 		return nil, nil, err
 	}
-	cc, ch, req, err := ssh.NewClientConn(conn, net.JoinHostPort(s.Host, strconv.Itoa(s.Port)), &ssh.ClientConfig{User: s.User, Auth: []ssh.AuthMethod{ssh.PublicKeys(signer)}, HostKeyCallback: callback})
+	cc, ch, req, err := ssh.NewClientConn(conn, net.JoinHostPort(s.Host, strconv.Itoa(s.Port)), &ssh.ClientConfig{
+		User:              s.User,
+		Auth:              []ssh.AuthMethod{ssh.PublicKeys(signer)},
+		HostKeyAlgorithms: []string{ssh.KeyAlgoED25519, ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521, ssh.KeyAlgoRSASHA256, ssh.KeyAlgoRSASHA512, ssh.KeyAlgoRSA},
+		HostKeyCallback:   callback,
+	})
 	if err != nil {
 		stop()
 		conn.Close()
 		release()
-		return nil, nil, errors.New("ssh_handshake_failed: check authentication and trusted host keys")
+		return nil, nil, fmt.Errorf("ssh_handshake_failed: %w", err)
 	}
 	if err = conn.SetDeadline(time.Time{}); err != nil {
 		stop()
